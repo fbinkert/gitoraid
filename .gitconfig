@@ -1,0 +1,32 @@
+[user]
+    useConfigOnly = true
+
+[core]
+    editor = nvim
+
+[color]
+	ui = auto
+
+[diff]
+  tool = nvimdiff # default diff tool
+
+[difftool]
+    prompt = false # disable the prompt before each diff
+
+[merge]
+    tool = nvimdiff # default merge tool
+    conflictstyle = diff3
+
+[mergetool]
+    prompt = false 
+    keepBackup = false
+
+[push]
+    autoSetupRemote = true
+
+[difftool "nvimdiff"]
+    cmd = nvim -d \"$LOCAL\" \"$REMOTE\"
+
+[mergetool "nvimdiff"]
+    cmd = nvim -d \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+    trustExitCode = true
