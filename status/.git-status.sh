@@ -1,21 +1,38 @@
 #!/bin/bash
 
+GIT_CONFIG="-c core.quotePath=false -c color.status=always -c color.diff=always"
+
 declare -A diff_stats
+
 while IFS= read -r line; do
-    if [[ "$line" =~ ^[[:space:]]*([^|[:space:]]+).*\| ]]; then
-        filename="${BASH_REMATCH[1]}"
-        [[ -n "$filename" ]] && diff_stats["$filename"]="${line#*|}"
-    fi
-done < <( git -c color.diff=always diff --stat=$(($(tput cols) - 3)) HEAD 2>/dev/null | sed '$d')
+  if [[ "$line" =~ ^[[:space:]]*(.*)[[:space:]]+\| ]]; then
+    filename="${BASH_REMATCH[1]}"
+    filename="${filename%"${filename##*[![:space:]]}"}"
 
-git -c color.status=always status -sb | while IFS= read -r line; do
-    cleaned_line=$(sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" <<< "$line")
-    if [[ "$cleaned_line" =~ ([MADRCU\?]{1,2})[[:space:]]+(.*) ]]; then
-        file="${BASH_REMATCH[2]}" 
-        echo "$line${diff_stats[$file]:+ |${diff_stats[$file]}}"
-    else 
-        echo "$line"
+    diff_stats["$filename"]="${line#*|}"
+  fi
+done < <(git $GIT_CONFIG diff --stat=$(($(tput cols) - 10)) HEAD 2>/dev/null | sed '$d')
+
+git $GIT_CONFIG status -sb | while IFS= read -r line; do
+
+  cleaned_line="${line//$'\e'\[[0-9;]*m/}"
+
+  if [[ "$cleaned_line" =~ ^([[:space:]]*[MADRCU\?]{1,2})[[:space:]]+(.*) ]]; then
+    status_code="${BASH_REMATCH[1]}"
+    file_part="${BASH_REMATCH[2]}"
+
+    target_file="$file_part"
+
+    if [[ "$file_part" == *" -> "* ]]; then
+      target_file="${file_part##* -> }"
     fi
+
+    if [[ -n "${diff_stats["$target_file"]}" ]]; then
+      echo "$line |${diff_stats["$target_file"]}"
+    else
+      echo "$line"
+    fi
+  else
+    echo "$line"
+  fi
 done
-
-
