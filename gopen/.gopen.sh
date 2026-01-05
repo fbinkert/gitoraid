@@ -84,7 +84,16 @@ gopen() {
     if [ -n "$filename" ]; then
       local full_path="$git_root/$filename"
       if [ -f "$full_path" ]; then
-        $git_editor "$full_path"
+
+        if [[ "$git_editor" == *"code"* || "$git_editor" == *"cursor"* ]]; then
+          # Run in background & detatch
+          $git_editor "$full_path" >/dev/null 2>&1 &
+          disown
+        else
+          # For Vim, Nano, etc., we MUST wait in the foreground
+          $git_editor "$full_path"
+        fi
+
         break
       else
         echo "File no longer exists on disk."
