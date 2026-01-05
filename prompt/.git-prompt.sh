@@ -18,6 +18,7 @@ function git_prompt() {
     ["no_upstream"]="L"
   )
 
+  # Determine Branch / Tag / Hash
   local branch
   branch=$(git symbolic-ref --short HEAD 2>/dev/null) ||
     branch=$(git describe --tags --exact-match 2>/dev/null) ||
@@ -25,19 +26,24 @@ function git_prompt() {
 
   local output="${symbols["git"]} ${branch}"
 
+  # Get Status and Stash counts
   local git_status
   git_status=$(git status --porcelain -b 2>/dev/null)
 
+  # Stash check
   local stash_count=0
   local stash_out
   stash_out=$(git stash list 2>/dev/null)
   [[ -n "$stash_out" ]] && stash_count=$(grep -c ^ <<<"$stash_out")
 
+  # Parse Status Output
   local ahead=0 behind=0
   local conflicted=0 staged=0 modified=0 renamed=0 deleted=0 untracked=0
   local has_upstream=false
 
+  # Read status line by line
   while IFS= read -r line; do
+    # --- Header Line (##) ---
     if [[ "$line" == "##"* ]]; then
       if [[ "$line" == *"..."* ]]; then
         has_upstream=true
@@ -57,23 +63,30 @@ function git_prompt() {
     local x=${xy:0:1}
     local y=${xy:1:1}
 
+    # Check Conflicts
     if [[ "$xy" =~ (DD|AU|UD|UA|DU|AA|UU) ]]; then
       ((conflicted++))
       continue
     fi
 
+    # Check Staged
     case "$x" in [MTADRC]) ((staged++)) ;; esac
 
+    # Check Unstaged
     case "$y" in
     M | T) ((modified++)) ;;
     D) ((deleted++)) ;;
     R | C) ((renamed++)) ;;
     esac
 
+    # Check Untracked
     if [[ "$xy" == "??" ]]; then ((untracked++)); fi
 
   done <<<"$git_status"
 
+  # Build Output String
+
+  # Upstream
   if $has_upstream; then
     [[ "$ahead" -gt 0 ]] && output+="${symbols["ahead"]}${ahead}"
     [[ "$behind" -gt 0 ]] && output+="${symbols["behind"]}${behind}"
@@ -81,6 +94,7 @@ function git_prompt() {
     output+=" ${symbols["no_upstream"]}"
   fi
 
+  # Flags
   local flags=()
   [[ "$conflicted" -gt 0 ]] && flags+=("${symbols["conflicted"]}${conflicted}")
   [[ "$stash_count" -gt 0 ]] && flags+=("${symbols["stash"]}${stash_count}")
