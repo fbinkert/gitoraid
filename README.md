@@ -1,81 +1,43 @@
-# git-status
+# Gitoraid
 
-**git-status** is a lightweight Bash script gives you an improved view of your Git status.
+**Gitoraid** is a collection of portable, pure Bash Git utilities designed for **sandboxed environments**, **shared servers**, **containers**, and **legacy systems**.
 
-### Preview
+If you are working on a machine where you:
 
-```text
-## main...origin/main
- M src/controllers/auth.go | +++++++-------
- A src/utils/helper.js     | ++++++++++
- D src/legacy/script.sh    | -----
- R src/old.css -> new.css  | +++-
- ?? .env.local
+- Do not have `root` or `sudo` access.
+- Cannot install packages (like `zsh`, `starship`, or `oh-my-git`).
 
-```
+...Gitoraid provides a informative Git utilities using only standard Bash features.
 
-### ✨ Features
+## Tools Included
 
-- **Unified View:** See file status (Modified, Added, Deleted, Renamed) and change magnitude (lines added/removed) side-by-side.
-- **Responsive:** Automatically adjusts the stat graph width based on your terminal window size.
-- **Robust:** Handles filenames with spaces, renames, and ANSI color codes correctly.
-- **Fast:** Uses Bash built-ins for string parsing to minimize overhead.
+### 1. The Prompt (`git_prompt`)
+
+A fast, shell prompt that displays branch status, upstream details, and file state using standard Unicode symbols.
+
+### 2. The Status (`git-status`)
+
+An enhanced replacement for `git status` that unifies file status (Modified/Added/Deleted) with change magnitude (diff-stat) in a single view.
 
 ---
 
-### 🚀 Installation
+## Usage Guide
 
-#### Option 1: Git Alias (Recommended)
+### 1. Git Prompt
 
-The easiest way to use this is to register it as a git alias.
+See [readme.md](prompt/README.md) for instructions on how to configure your prompt.
 
-1. Save the improved script to a location on your machine (e.g., `~/git-overview.sh`).
-2. Make it executable:
+### 2. Git Status
 
-```bash
-chmod +x ~/git-overview.sh
-
-```
-
-3. Add the alias to your git config:
-
-```bash
-git config --global alias.overview "!~/git-overview.sh"
-
-```
-
-Now you can simply run:
-
-```bash
-git overview
-
-```
-
-#### Option 2: System-wide Command
-
-1. Save the script as `git-overview` (no extension).
-2. Move it to a folder in your `$PATH` (e.g., `/usr/local/bin`):
-
-```bash
-sudo mv git-overview /usr/local/bin/
-sudo chmod +x /usr/local/bin/git-overview
-
-```
-
-3. Because it follows the `git-command` naming convention, Git picks it up automatically:
-
-```bash
-git overview
-
-```
+See [readme.md](status/README.md) for instructions on how to use the enhanced status.
 
 ---
 
-### 📝 Requirements
+## Requirements & Compatibility
 
-- Bash 4.0+
-- Git
+- **Shell:** Bash 4.0 or higher.
+- **Dependencies:** `git`.
 
-### 🤝 Contributing
+## License
 
-Feel free to fork this project and submit PRs for improvements (e.g., added support for `git status --porcelain` v2 or different stat formatting).
+MIT
